@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0c0b0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Montage">
+<meta name="description" content="写真と音楽から、おしゃれなムービーをつくる自分専用のアプリ">
+<title>Montage</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Dela+Gothic+One&family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500&family=Klee+One:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Shippori+Mincho:wght@400;500;600&family=Special+Elite&family=Yomogi&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Zen+Maru+Gothic:wght@400;500&family=Zen+Old+Mincho:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grain-ui" aria-hidden="true"></div>
+
+<!-- ============ ホーム ============ -->
+<section id="home" class="screen">
+  <header class="home-head">
+    <div class="brand">Montage<span>.</span></div>
+    <button class="icon-btn" id="aboutBtn" aria-label="このアプリについて">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+    </button>
+  </header>
+  <div class="home-hero">
+    <p class="hero-eyebrow">PHOTO FILM STUDIO</p>
+    <h1 class="hero-title">写真を、<br>ひとつの物語に。</h1>
+    <p class="hero-sub">写真を選んで、テーマと音楽を決めるだけ。<br>ぜんぶ、この端末の中だけで完結します。</p>
+    <button class="btn primary big" id="newProjectBtn">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>新しいムービーをつくる
+    </button>
+  </div>
+  <div class="home-list-head"><h2>つくった作品</h2><span id="projectCount"></span></div>
+  <div id="projectGrid" class="project-grid"></div>
+</section>
+
+<!-- ============ 編集画面 ============ -->
+<section id="editor" class="screen hidden">
+  <header class="ed-top">
+    <button class="icon-btn" id="backBtn" aria-label="作品一覧へ">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="ed-name" id="nameBtn"><span id="projName"></span><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></button>
+    <div class="ed-top-actions">
+      <button class="icon-btn" id="undoBtn" aria-label="元に戻す"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>
+      <button class="icon-btn" id="redoBtn" aria-label="やり直す"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg></button>
+      <button class="btn primary small" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>書き出し</button>
+    </div>
+  </header>
+
+  <div class="stage-area">
+    <div class="stage" id="stage">
+      <canvas id="glCanvas"></canvas>
+      <canvas id="ovCanvas"></canvas>
+      <div class="stage-empty" id="stageEmpty">
+        <button class="btn primary" data-act="addPhotos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-8 8"/></svg>写真を選ぶ</button>
+        <p>何枚でも選べます。撮影日の順に並びます。</p>
+      </div>
+      <div class="stage-play" id="stagePlay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="theater-close icon-btn" id="theaterClose" aria-label="閉じる"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+
+  <div class="transport">
+    <button class="icon-btn" id="playBtn" aria-label="再生">
+      <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+    </button>
+    <div class="time"><span id="timeCur">0:00.0</span><span class="time-sep">/</span><span id="timeTotal">0:00.0</span></div>
+    <div class="transport-right">
+      <button class="icon-btn" id="snapBtn" aria-label="ビートにスナップ" title="ビートにスナップ"><svg viewBox="0 0 24 24"><path d="M6 4v7a6 6 0 0012 0V4"/><path d="M6 8h4M14 8h4"/></svg></button>
+      <button class="icon-btn" id="zoomOutBtn" aria-label="縮小"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+      <button class="icon-btn" id="zoomInBtn" aria-label="拡大"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="icon-btn" id="theaterBtn" aria-label="大きく再生"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline">
+    <canvas class="tl-canvas" id="tlCanvas"></canvas>
+    <div class="tl-scroll" id="tlScroll"><div class="tl-content" id="tlContent"></div></div>
+    <div class="tl-playhead"></div>
+  </div>
+
+  <div class="side">
+    <nav class="tabs" id="tabs">
+      <button data-tab="theme"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6L20 9.5l-4 4 1 5.8-5-2.8-5 2.8 1-5.8-4-4 5.4-.9z"/></svg><span>テーマ</span></button>
+      <button data-tab="photos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-8 8"/></svg><span>写真</span></button>
+      <button data-tab="text"><svg viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg><span>文字</span></button>
+      <button data-tab="music"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span>音楽</span></button>
+      <button data-tab="look"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg><span>仕上げ</span></button>
+    </nav>
+    <div class="panel" id="panel"></div>
+  </div>
+</section>
+
+<!-- ============ シート・ダイアログ ============ -->
+<div class="sheet-wrap hidden" id="sheetWrap">
+  <div class="sheet-backdrop" data-close></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+<div class="busy hidden" id="busy"><div class="busy-box"><div class="spinner"></div><p id="busyText">読み込み中…</p></div></div>
+<div class="toasts" id="toasts"></div>
+
+<input type="file" id="photoInput" accept="image/*" multiple hidden>
+<input type="file" id="replaceInput" accept="image/*" hidden>
+<input type="file" id="audioInput" accept="audio/*,video/mp4,video/quicktime,.mp3,.m4a,.aac,.wav,.flac,.ogg" hidden>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
